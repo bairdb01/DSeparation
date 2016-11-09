@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Author: Benjamin Baird
@@ -11,11 +8,11 @@ import java.util.Iterator;
  * Filename: TestDsep
  * Description: Checks if D-separation <X|Z|Y>G holds in a DAG of a Bayesian network S = (V,G,P)
  *              and X, Y, Z are disjoint subsets of variables in V
- *
+ * 
  */
 public class TestDsep {
     public static void main(String [] args) {
-        ArrayList<DAGNode> bn;
+        HashMap<Integer, DAGNode> bn;
         ArrayList<String> x = new ArrayList<>();
         ArrayList<String> y = new ArrayList<>();
         ArrayList<String> z = new ArrayList<>();
@@ -39,7 +36,7 @@ public class TestDsep {
             line = brBN.readLine();
             toks = line.split(" ");
             int numNodes = Integer.parseInt(toks[0]);
-            bn = new ArrayList<>(numNodes);
+            bn = new HashMap<>(numNodes);
             line = brBN.readLine();
 
             // Read all the nodes
@@ -117,7 +114,7 @@ public class TestDsep {
                 }
 
 
-                bn.add(new DAGNode(id, name, domain, parents, children, probs));
+                bn.put(id, new DAGNode(id, name, domain, parents, children, probs));
                 nodeCounter++;
             }
 
@@ -134,7 +131,10 @@ public class TestDsep {
                 z.addAll(Arrays.asList(line.split(delim)));
 
             System.out.println("Bayesian Network variable names: ");
-            for (DAGNode dagNode : bn) {
+            Iterator it = bn.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                DAGNode dagNode = (DAGNode) pair.getValue();
 //                System.out.println("\tNode " + dagNode.getId() + ":" + dagNode.getName());
                 System.out.println(dagNode);
             }
@@ -158,9 +158,9 @@ public class TestDsep {
                 System.out.print(var + " ");
             }
 
-            if (z.size() == 0)
-                System.out.println("{}");
-
+            if (z.size() == 1 && z.contains("{}")) {
+                return;
+            }
             System.out.println();
             System.out.println("<X|Z|Y>G : " + dSeparated(bn, x, z, y));
 
@@ -172,15 +172,19 @@ public class TestDsep {
     // Create Moral Graph
     // Let G be a DAG. For each child in G,
     // connect its parents pairwise and drop directions of links.
-    public static ArrayList<UNode> genMoralGraph (ArrayList<DAGNode> graph) {
-        ArrayList<UNode> moralG = new ArrayList<UNode>();
+    public static HashMap<Integer, UNode> genMoralGraph ( HashMap<Integer, DAGNode> graph) {
+        System.out.println("Generating Moral graph...");
+        HashMap<Integer, UNode> moralG = new HashMap<>();
+
         // Convert a DAG to Undirected graph
-        for(DAGNode node : graph) {
-            moralG.add(new UNode(node));
+        for (Map.Entry pair : graph.entrySet()) {
+            DAGNode node = (DAGNode)pair.getValue();
+            moralG.put(node.getId(),new UNode(node));
         }
 
         // Go through all the nodes
-        for (DAGNode node : graph) {
+        for (Map.Entry pair : graph.entrySet()) {
+            DAGNode node = (DAGNode)pair.getValue();
             // Go through all of a nodes parents
             for (Integer parentId : node.getParents()) {
                 UNode parent = moralG.get(parentId);
@@ -196,18 +200,25 @@ public class TestDsep {
     }
 
     // Finds the ancestral subgraph of w in g
-    public static ArrayList<DAGNode> getAncestralSubGraph(ArrayList<DAGNode> g, ArrayList<DAGNode> w){
-        ArrayList<DAGNode> ag = new ArrayList<DAGNode>(g);
+    public static HashMap<Integer, DAGNode> getAncestralSubGraph( HashMap<Integer, DAGNode> graph, ArrayList<DAGNode> w){
+        System.out.println("Generating ancestral subgraph...");
+        HashMap<Integer, DAGNode> ag = new HashMap<>(graph);
+
         boolean done = false;
+        // Go over each node to see if it belongs in w or it's parents
         while (!done) {
             done = true;
-            for (DAGNode node : g){
+            Iterator it = ag.entrySet().iterator();
+            while (it.hasNext()){
+                Map.Entry pair = (Map.Entry)it.next();
+                DAGNode node = (DAGNode) pair.getValue();
                 if ((node.getChildren().size() == 0) && !w.contains(node)) {
                     // Delete non-ancestor node links in parents
                     for (Integer parentId : node.getParents()) {
                         DAGNode parent = ag.get(parentId);
                         parent.removeChild(node.getId());
                     }
+                    it.remove();
                     done =false;
                 }
             }
@@ -216,13 +227,16 @@ public class TestDsep {
     }
 
     // Checks u separation
-    public static boolean uSeparated(ArrayList<UNode> g, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
-        ArrayList<UNode> gClone = new ArrayList<>(g);
+    public static boolean uSeparated( HashMap<Integer, UNode> graph, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
+        System.out.println("Checking U-Separation...");
+        HashMap<Integer, UNode> gClone = new HashMap<>(graph);
+
         // delete Z and links incident to Z from G;
         for(String varName : z){
-            Iterator it = gClone.iterator();
+            Iterator it = gClone.entrySet().iterator();
             while ( it.hasNext() ) {
-                UNode node = (UNode) it.next();
+                Map.Entry pair = (Map.Entry) it.next();
+                UNode node = (UNode) pair.getValue();
                 // Remove links to node in Z and remove the node
                 if (node.getName().equals(varName)) {
                     for (Integer path : node.getPaths()) {
@@ -236,7 +250,8 @@ public class TestDsep {
 
         //add nodes adjacent to X and X+ to X+ recursively;
         HashSet<Integer> xPaths = new HashSet<>();
-        for ( UNode node : gClone) {
+        for( Map.Entry pair : gClone.entrySet()) {
+            UNode node = (UNode) pair.getValue();
             if (x.contains(node.getName()))
                 xPaths.addAll(node.getPaths());
         }
@@ -246,39 +261,39 @@ public class TestDsep {
             Integer nodeId =  (Integer)it.next();
             UNode node = gClone.get(nodeId);
 
-            for ( Integer path: node.getPaths()) {
-                if (!xPaths.contains(path)) {
-                    xPaths.add(path);
-                    it = xPaths.iterator();
-                }
+            if (!xPaths.containsAll(node.getPaths())) {
+                xPaths.addAll(node.getPaths());
+                it = xPaths.iterator();
             }
         }
 
-
         // Check if new X intersects with Y
         for (String varName: y) {
-            if (xPaths.contains(varName))
-                return false;
+            for ( Integer nodeId : xPaths )
+                if (gClone.get(nodeId).getName().equals(varName))
+                    return false;
         }
         return true;
     }
 
     // Checks d-separation
-    public static boolean dSeparated(ArrayList<DAGNode> g, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
+    public static boolean dSeparated(HashMap<Integer, DAGNode> g, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
+        System.out.println("Checking D-separation...");;
         ArrayList<DAGNode> union = new ArrayList<>();
         HashSet<String> allVarNames = new HashSet<>();
         allVarNames.addAll(x);
         allVarNames.addAll(y);
         allVarNames.addAll(z);
-        for (DAGNode node:
-             g) {
+
+        for (Map.Entry pair : g.entrySet()) {
+            DAGNode node = (DAGNode) pair.getValue();
             if (allVarNames.contains(node.getName())) {
                 union.add(node);
             }
         }
 
-        ArrayList<DAGNode> ancestralGraph = getAncestralSubGraph(g, union) ;
-        ArrayList<UNode> moralGraphAG = genMoralGraph(ancestralGraph);
+        HashMap<Integer, DAGNode> ancestralGraph = getAncestralSubGraph(g, union) ;
+        HashMap<Integer, UNode> moralGraphAG = genMoralGraph(ancestralGraph);
         return uSeparated(moralGraphAG, x, z, y);
     }
 }

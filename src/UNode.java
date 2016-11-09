@@ -50,13 +50,13 @@ public class UNode {
         StringBuilder newString = new StringBuilder();
         newString.append("NodeId: " + id + "\n");
         newString.append("NodeName: " + name + "\n");
-        newString.append("DomainSize: " + domain.size() + "\n");
-        newString.append("Domain: ");
-        for (String var:
-                domain) {
-            newString.append(var + " ");
-        }
-        newString.append("\n");
+//        newString.append("DomainSize: " + domain.size() + "\n");
+//        newString.append("Domain: ");
+//        for (String var:
+//                domain) {
+//            newString.append(var + " ");
+//        }
+//        newString.append("\n");
 
         newString.append("Paths Size: " + paths.size() + "\n");
         newString.append("Paths: ");
@@ -68,13 +68,13 @@ public class UNode {
         newString.append("\n");
 
 
-        newString.append("Probs Size: " + probs.size() + "\n");
-        newString.append("Probs: ");
-        for (Double prob:
-                probs) {
-            newString.append(prob + " ");
-        }
-        newString.append("\n");
+//        newString.append("Probs Size: " + probs.size() + "\n");
+//        newString.append("Probs: ");
+//        for (Double prob:
+//                probs) {
+//            newString.append(prob + " ");
+//        }
+//        newString.append("\n");
         return newString.toString();
     }
 
