@@ -182,7 +182,7 @@ public class TestDsep {
     // Let G be a DAG. For each child in G,
     // connect its parents pairwise and drop directions of links.
     public static HashMap<Integer, UNode> genMoralGraph ( HashMap<Integer, DAGNode> graph) {
-        System.out.println("Generating Moral graph...");
+        System.out.println("Generating moral graph...");
         HashMap<Integer, UNode> moralG = new HashMap<>();
 
         // Convert a DAG to Undirected graph
@@ -237,7 +237,7 @@ public class TestDsep {
 
     // Checks u separation
     public static boolean uSeparated( HashMap<Integer, UNode> graph, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
-        System.out.println("Checking U-Separation...");
+        System.out.println("Checking u-separation...");
         HashMap<Integer, UNode> gClone = new HashMap<>(graph);
 
         // delete Z and links incident to Z from G;
@@ -287,7 +287,7 @@ public class TestDsep {
 
     // Checks d-separation
     public static boolean dSeparated(HashMap<Integer, DAGNode> g, ArrayList<String> x, ArrayList<String> z, ArrayList<String> y) {
-        System.out.println("Checking D-separation...");;
+        System.out.println("Checking d-separation...");;
         ArrayList<DAGNode> union = new ArrayList<>();
         HashSet<String> allVarNames = new HashSet<>();
         allVarNames.addAll(x);
