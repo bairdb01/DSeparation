@@ -4,11 +4,11 @@ import java.util.*;
 /**
  * Author: Benjamin Baird
  * Created on: 2016-11-06
- * Last Updated on: 2016-11-06
+ * Last Updated on: 2016-11-08
  * Filename: TestDsep
  * Description: Checks if D-separation <X|Z|Y>G holds in a DAG of a Bayesian network S = (V,G,P)
  *              and X, Y, Z are disjoint subsets of variables in V
- * 
+ * Tested on textbook questions
  */
 public class TestDsep {
     public static void main(String [] args) {
@@ -130,7 +130,7 @@ public class TestDsep {
             if (line != null)
                 z.addAll(Arrays.asList(line.split(delim)));
 
-            System.out.println("Bayesian Network variable names: ");
+            System.out.println("Loaded bayesian network nodes: \n");
             Iterator it = bn.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
@@ -157,8 +157,17 @@ public class TestDsep {
             for (String var : z) {
                 System.out.print(var + " ");
             }
+            System.out.println();
 
-            if (z.size() == 1 && z.contains("{}")) {
+            if (x.size() == 0) {
+                System.out.println("Enter at least one variable for X\n");
+                return;
+            }
+            if (y.size() == 0) {
+                System.out.println("Enter at least one variable for Y\n");
+                return;
+            }
+            if (z.size() == 0 || (z.size() == 1 && z.contains("{}"))) {
                 return;
             }
             System.out.println();

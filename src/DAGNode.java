@@ -4,7 +4,7 @@ import java.util.HashSet;
 /**
  * Author: Benjamin Baird
  * Created on: 2016-11-06
- * Last Updated on: 2016-11-06
+ * Last Updated on: 2016-11-08
  * Filename: DAGNode
  * Description:
  */
@@ -71,7 +71,6 @@ public class DAGNode {
 //                probs) {
 //            newString.append(prob + " ");
 //        }
-        newString.append("\n");
         return newString.toString();
     }
 

@@ -4,7 +4,7 @@ import java.util.HashSet;
 /**
  * Author: Benjamin Baird
  * Created on: 2016-11-06
- * Last Updated on: 2016-11-06
+ * Last Updated on: 2016-11-08
  * Filename: UNode
  * Description: Undirected graph node
  */
